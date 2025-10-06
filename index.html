@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Lecture Summarizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary: #0f172a;
+            --accent: #7c3aed;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #e2e8f0;
+            --success: #10b981;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--secondary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 500;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--gray-light);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%232563eb" opacity="0.05"><polygon points="0,0 100,100 0,100"/></svg>') no-repeat;
+            background-size: cover;
+        }
+
+        .hero-content {
+            max-width: 600px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 14px 28px;
+            font-size: 1rem;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--secondary);
+            border: 1.5px solid var(--gray-light);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 80px 0;
+            flex: 1;
+        }
+
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-align: center;
+            color: var(--secondary);
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--gray);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 48px;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 48px;
+        }
+
+        .url-input-container {
+            display: flex;
+            margin-bottom: 20px;
+            border: 1.5px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .url-input-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 24px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .example-urls {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .example-urls a {
+            color: var(--primary);
+            text-decoration: none;
+            margin-right: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .example-urls a:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--primary-light);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 48px;
+        }
+
+        .video-info {
+            display: flex;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .video-thumbnail {
+            width: 240px;
+            height: 135px;
+            border-radius: var(--border-radius);
+            margin-right: 24px;
+            object-fit: cover;
+        }
+
+        .video-details h3 {
+            margin-bottom: 8px;
+            color: var(--secondary);
+            font-size: 1.5rem;
+        }
+
+        .video-details p {
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .summary-content {
+            margin-bottom: 32px;
+        }
+
+        .summary-content h4 {
+            margin-bottom: 16px;
+            color: var(--secondary);
+            font-size: 1.25rem;
+        }
+
+        .summary-text {
+            line-height: 1.7;
+            white-space: pre-line;
+            background: var(--light);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary);
+        }
+
+        .key-terms {
+            background: var(--light);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            margin-bottom: 24px;
+        }
+
+        .key-terms h4 {
+            margin-bottom: 16px;
+            color: var(--secondary);
+            font-size: 1.25rem;
+        }
+
+        .terms-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .term {
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .term:hover {
+            background: var(--primary-dark);
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .btn-download {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Features Section */
+        .features-section {
+            margin: 80px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 32px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--primary-light);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--primary);
+            font-size: 1.75rem;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 16px;
+            color: var(--secondary);
+            font-size: 1.25rem;
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            margin: 80px 0;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 48px;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: var(--gray-light);
+            z-index: 0;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .step h3 {
+            margin-bottom: 12px;
+            color: var(--secondary);
+        }
+
+        .step p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* Dashboard Section */
+        .dashboard-section {
+            display: none;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 48px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .recent-summaries {
+            margin-top: 40px;
+        }
+
+        .summary-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .summary-item:hover {
+            background: var(--primary-light);
+        }
+
+        .summary-thumbnail {
+            width: 80px;
+            height: 45px;
+            border-radius: 8px;
+            margin-right: 16px;
+            object-fit: cover;
+        }
+
+        .summary-details {
+            flex: 1;
+        }
+
+        .summary-details h4 {
+            margin-bottom: 4px;
+            color: var(--secondary);
+        }
+
+        .summary-details p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .summary-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--secondary);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* Page Navigation */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .steps {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .steps::before {
+                display: none;
+            }
+            
+            .video-info {
+                flex-direction: column;
+            }
+            
+            .video-thumbnail {
+                width: 100%;
+                height: auto;
+                margin-right: 0;
+                margin-bottom: 16px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-actions {
+                flex-direction: column;
+            }
+            
+            .url-input-container {
+                flex-direction: column;
+            }
+            
+            .url-input {
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
+            }
+            
+            .submit-btn {
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
+                padding: 16px;
+            }
+            
+            .main-content {
+                padding: 40px 0;
+            }
+            
+            .input-section, .results-section, .dashboard-section {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo" onclick="showPage('home')">
+                    <div class="logo-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="logo-text">SummarizeAI</div>
+                </a>
+                <div class="nav-links">
+                    <a href="#" class="active" onclick="showPage('home')">Home</a>
+                    <a href="#" onclick="showPage('dashboard')">Dashboard</a>
+                    <a href="#" onclick="showPage('features')">Features</a>
+                    <a href="#" onclick="showPage('how-it-works')">How It Works</a>
+                </div>
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" id="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                    <button class="btn btn-primary" id="signup-btn">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Home Page -->
+    <div id="home" class="page active">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Transform Lectures into <span>Structured Notes</span></h1>
+                    <p class="hero-subtitle">AI-powered tool that converts YouTube lectures into concise, well-organized study materials. Save time and focus on learning with smart content filtering and summarization.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-large" id="get-started">
+                            <i class="fas fa-play"></i> Get Started
+                        </button>
+                        <button class="btn btn-secondary btn-large" id="watch-demo">
+                            <i class="fas fa-video"></i> Watch Demo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <div class="container">
+            <div class="main-content">
+                <!-- Input Section -->
+                <section class="input-section">
+                    <h2 class="section-title">Summarize YouTube Lectures</h2>
+                    <p class="section-subtitle">Paste a YouTube URL to generate concise, structured notes with irrelevant content filtered out.</p>
+                    
+                    <div class="url-input-container">
+                        <input type="text" class="url-input" placeholder="Paste YouTube URL here..." id="url-input">
+                        <button class="submit-btn" id="submit-btn">
+                            <i class="fas fa-bolt"></i> Summarize
+                        </button>
+                    </div>
+                    
+                    <div class="example-urls">
+                        <span>Try example: </span>
+                        <a href="#" data-url="https://www.youtube.com/watch?v=example1">Machine Learning</a>
+                        <a href="#" data-url="https://www.youtube.com/watch?v=example2">Physics</a>
+                        <a href="#" data-url="https://www.youtube.com/watch?v=example3">Programming</a>
+                    </div>
+                </section>
+
+                <!-- Loading Animation -->
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Processing your lecture... This may take a moment.</p>
+                </div>
+
+                <!-- Results Section -->
+                <section class="results-section" id="results-section">
+                    <h2 class="section-title">Lecture Summary</h2>
+                    
+                    <div class="video-info">
+                        <img src="https://i.ytimg.com/vi/aircAruvnKk/hqdefault.jpg" alt="Video Thumbnail" class="video-thumbnail">
+                        <div class="video-details">
+                            <h3 id="video-title">Introduction to Artificial Intelligence</h3>
+                            <p id="video-author">By Professor John Smith</p>
+                            <p id="video-details">Duration: 45:22 • 15,432 views</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-content">
+                        <h4>Summary</h4>
+                        <div class="summary-text" id="summary-text">
+                            Artificial Intelligence (AI) refers to the simulation of human intelligence in machines programmed to think and learn. Key concepts include:
+
+                            • Machine Learning: A subset of AI that enables systems to learn and improve from experience without explicit programming.
+
+                            • Neural Networks: Computational models inspired by the human brain, used for pattern recognition and classification.
+
+                            • Natural Language Processing (NLP): Technology that enables computers to understand, interpret, and respond to human language.
+
+                            Applications of AI span various industries including healthcare, finance, and autonomous vehicles. Current challenges include ethical considerations and bias in AI systems.
+                        </div>
+                    </div>
+                    
+                    <div class="key-terms">
+                        <h4>Key Terms</h4>
+                        <div class="terms-list" id="terms-list">
+                            <span class="term">Artificial Intelligence</span>
+                            <span class="term">Machine Learning</span>
+                            <span class="term">Neural Networks</span>
+                            <span class="term">Natural Language Processing</span>
+                            <span class="term">Deep Learning</span>
+                            <span class="term">Computer Vision</span>
+                        </div>
+                    </div>
+                    
+                    <div class="actions">
+                        <button class="btn btn-download" id="download-pdf">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </button>
+                        <button class="btn btn-primary" id="export-word">
+                            <i class="fas fa-file-word"></i> Export to Word
+                        </button>
+                        <button class="btn btn-outline" id="summarize-another">
+                            <i class="fas fa-redo"></i> Summarize Another
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard" class="page">
+        <div class="container">
+            <div class="main-content">
+                <section class="dashboard-section">
+                    <div class="dashboard-header">
+                        <h2 class="section-title">Your Dashboard</h2>
+                        <button class="btn btn-primary" onclick="showPage('home')">
+                            <i class="fas fa-plus"></i> New Summary
+                        </button>
+                    </div>
+
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-number">24</div>
+                            <div class="stat-label">Summaries Created</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">18.5</div>
+                            <div class="stat-label">Hours Saved</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">7</div>
+                            <div class="stat-label">This Week</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">94%</div>
+                            <div class="stat-label">Accuracy Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="recent-summaries">
+                        <h3 class="section-title">Recent Summaries</h3>
+                        <div class="summary-list">
+                            <div class="summary-item">
+                                <img src="https://i.ytimg.com/vi/aircAruvnKk/hqdefault.jpg" alt="Video Thumbnail" class="summary-thumbnail">
+                                <div class="summary-details">
+                                    <h4>Introduction to Machine Learning</h4>
+                                    <p>Created 2 days ago • 15 key terms</p>
+                                </div>
+                                <div class="summary-actions">
+                                    <button class="btn btn-outline btn-small">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-primary btn-small">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <img src="https://i.ytimg.com/vi/fM5d_2BS6F8/hqdefault.jpg" alt="Video Thumbnail" class="summary-thumbnail">
+                                <div class="summary-details">
+                                    <h4>Data Structures and Algorithms</h4>
+                                    <p>Created 4 days ago • 22 key terms</p>
+                                </div>
+                                <div class="summary-actions">
+                                    <button class="btn btn-outline btn-small">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-primary btn-small">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <img src="https://i.ytimg.com/vi/kjhu1LEmRpY/hqdefault.jpg" alt="Video Thumbnail" class="summary-thumbnail">
+                                <div class="summary-details">
+                                    <h4>Web Development Fundamentals</h4>
+                                    <p>Created 1 week ago • 18 key terms</p>
+                                </div>
+                                <div class="summary-actions">
+                                    <button class="btn btn-outline btn-small">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-primary btn-small">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Page -->
+    <div id="features" class="page">
+        <div class="container">
+            <div class="main-content">
+                <section class="features-section">
+                    <h2 class="section-title">Why Choose SummarizeAI</h2>
+                    <p class="section-subtitle">Our AI-powered platform transforms lengthy lectures into concise, actionable study materials.</p>
+                    
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-filter"></i>
+                            </div>
+                            <h3>Smart Filtering</h3>
+                            <p>Automatically removes jokes, fillers, and off-topic content to focus on educational material.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <h3>Structured Notes</h3>
+                            <p>Generates hierarchical, well-organized notes with highlighted key terms and concepts.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h3>Time Efficient</h3>
+                            <p>Reduces hours of lecture watching to minutes of focused reading for efficient studying.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <h3>Multi-Format Export</h3>
+                            <p>Download your notes as PDF or Word documents for offline access and printing.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Page -->
+    <div id="how-it-works" class="page">
+        <div class="container">
+            <div class="main-content">
+                <section class="how-it-works">
+                    <h2 class="section-title">How It Works</h2>
+                    <p class="section-subtitle">Transform any YouTube lecture into study notes in just three simple steps.</p>
+                    
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <h3>Paste URL</h3>
+                            <p>Copy and paste the YouTube lecture URL into our platform.</p>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <h3>AI Processing</h3>
+                            <p>Our AI analyzes the content, filters irrelevant parts, and summarizes key points.</p>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <h3>Get Notes</h3>
+                            <p>Receive structured notes and download in your preferred format.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>SummarizeAI</h3>
+                    <p>Transform YouTube lectures into clean, structured study notes with AI-powered filtering and summarization.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Product</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="showPage('features')">Features</a></li>
+                        <li><a href="#" onclick="showPage('how-it-works')">How It Works</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">API</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Tutorials</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 SummarizeAI. All rights reserved. | Visvesvaraya Technological University</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Page Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Set the clicked link as active
+            event.target.classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // DOM Elements
+        const urlInput = document.getElementById('url-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const loading = document.getElementById('loading');
+        const resultsSection = document.getElementById('results-section');
+        const exampleUrls = document.querySelectorAll('.example-urls a');
+        const summarizeAnotherBtn = document.getElementById('summarize-another');
+        const downloadPdfBtn = document.getElementById('download-pdf');
+        const exportWordBtn = document.getElementById('export-word');
+        const getStartedBtn = document.getElementById('get-started');
+        const watchDemoBtn = document.getElementById('watch-demo');
+
+        // Form Submission
+        submitBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('Please enter a valid YouTube URL');
+                return;
+            }
+
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+
+            // Simulate API call (replace with real fetch)
+            setTimeout(() => {
+                loading.style.display = 'none';
+                resultsSection.style.display = 'block';
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+                submitBtn.disabled = false;
+            }, 2000);
+        });
+
+        // Example URL Handlers
+        exampleUrls.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                urlInput.value = link.getAttribute('data-url');
+            });
+        });
+
+        // Summarize Another
+        summarizeAnotherBtn.addEventListener('click', () => {
+            resultsSection.style.display = 'none';
+            urlInput.value = '';
+            urlInput.focus();
+        });
+
+        // Download Buttons
+        downloadPdfBtn.addEventListener('click', () => {
+            alert('PDF download would be implemented with backend integration');
+        });
+
+        exportWordBtn.addEventListener('click', () => {
+            alert('Word export would be implemented with backend integration');
+        });
+
+        // Get Started Button
+        getStartedBtn.addEventListener('click', () => {
+            document.querySelector('.input-section').scrollIntoView({ behavior: 'smooth' });
+            urlInput.focus();
+        });
+
+        // Watch Demo Button
+        watchDemoBtn.addEventListener('click', () => {
+            alert('Demo video would play here. Link to a sample video soon!');
+        });
+
+        // Auth Buttons
+        document.getElementById('login-btn').addEventListener('click', () => {
+            alert('Login functionality would be implemented with backend integration');
+        });
+
+        document.getElementById('signup-btn').addEventListener('click', () => {
+            alert('Signup functionality would be implemented with backend integration');
+        });
+    </script>
+</body>
+</html>

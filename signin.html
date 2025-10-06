@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - AI-Powered Lecture Summarizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* [CSS is identical to signup.html, copied for consistency] */
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2 class="auth-title">Sign In</h2>
+        <form id="signin-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+        <a href="http://localhost:5000/auth/google" class="btn btn-primary" style="margin-top: 20px;">
+            <i class="fab fa-google"></i> Sign in with Google
+        </a>
+        <a href="signup.html" class="back-link">Don't have an account? Sign Up</a>
+    </div>
+
+    <script>
+        const form = document.getElementById('signin-form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if (email && password) {
+                alert(`Sign-in successful for ${email}! (Simulated) Redirecting to home...`);
+                window.location.href = 'index.html';
+            } else {
+                alert('Please fill in all fields.');
+            }
+        });
+    </script>
+</body>
+</html>
